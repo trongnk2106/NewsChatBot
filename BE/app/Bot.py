@@ -36,25 +36,24 @@ def create_db_from_text(raw_text):
     # Ngoài kênh giao dịch tại quầy, khách hàng cũng dễ dàng mở tài khoản số đẹp trên ứng dụng SHB Mobile mà không cần hồ sơ thủ tục phức tạp.
     # Hướng mục tiêu trở thành ngân hàng số 1 về hiệu quả tại Việt Nam, ngân hàng bán lẻ hiện đại nhất và là ngân hàng số được yêu thích nhất tại Việt Nam, SHB sẽ tiếp tục nghiên cứu và cho ra mắt nhiều sản phẩm dịch vụ số ưu việt cùngchương trình ưu đãi hấp dẫn, mang đến cho khách hàng lợi ích và trải nghiệm tuyệt vời nhất.
     # Để biết thêm thông tin về chương trình, Quý khách vui lòng liên hệ các điểm giao dịch của SHB trên toàn quốc hoặc Hotline *6688"""
-
+   
     # Chia nho van ban
     text_splitter = CharacterTextSplitter(
         separator=".",
         chunk_size=256,
         chunk_overlap=10,
         length_function=len
-
     )
 
     chunks = text_splitter.split_text(raw_text)
 
     # Embeding
-    embedding_model = GPT4AllEmbeddings(model_file = "models/all-MiniLM-L6-v2-f16.gguf")
+    embedding_model = GPT4AllEmbeddings(model_file = "models/all-MiniLM-L6-v2-f16.gguf") # caau 1 vecto
 
     # Dua vao Faiss Vector DB
-    db = FAISS.from_texts(texts=chunks, embedding=embedding_model)
+    db = FAISS.from_texts(texts=chunks, embedding=embedding_model) # dua cau vao emdding roi luu 
     # db.save_local(vector_db_path)
-    return db
+    return db # nparray moi hhan la 1 vector, so hang == so cau split van ban bang cach chia chunks nhu o tren
 
 
 # Load LLM
@@ -89,7 +88,6 @@ def create_qa_chain(prompt, llm, db):
         retriever = db.as_retriever(search_kwargs = {"k":3}, max_tokens_limit=100),
         return_source_documents = False,
         chain_type_kwargs= {'prompt': prompt}
-
     )
     return llm_chain
 

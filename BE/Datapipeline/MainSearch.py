@@ -57,7 +57,7 @@ def search(query):
             }
         }
     }
-    }, _source=['title', 'link', 'date', 'author', 'description', 'paragraphs'])
+    }, _source=['title', 'link', 'date', 'author', 'description', 'paragraphs']) # select * 
     
     
     

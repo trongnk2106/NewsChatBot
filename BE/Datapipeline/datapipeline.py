@@ -21,7 +21,7 @@ from tqdm import tqdm
 es = Elasticsearch('http://localhost:9200',
                    basic_auth=('elastic', 'trongnt123'))
 def create_index():
-    es.indices.create(index='news', mappings=indexMapping)
+    es.indices.create(index='news', mappings=indexMapping) # index == table sql
 
 def get_indices():
     print(es.indices.get_alias().keys())
@@ -31,6 +31,7 @@ def push_data(data):
     for idx, rec in tqdm(enumerate(data)):
         try:
             # print(idx)
+            
             es.index(index='news', document=rec, id=idx)
         except Exception as e:
             print(e)
@@ -46,12 +47,12 @@ def removespec(text):
     text = str(''.join(text))
     n_text = re.sub("([\[\]'\-,])", '', text)
 
-    return n_text
+    return n_text # caau binh thuong co ki tu dac biet => cau khong co ki tu dac biet
 
 def tokenizer(sentence, rdrsegmenter):
     tokenizer = rdrsegmenter.word_segment(sentence)
     tokenizer = ''.join(tokenizer)
-    return tokenizer
+    return tokenizer # caau binh thuong => _ giua hai tu con ca => con_ca
 
 
 if __name__ == "__main__":
