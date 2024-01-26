@@ -5,7 +5,7 @@ import glob
 import py_vncorenlp
 import json
 import re
-
+from tqdm import tqdm
 import sys
 # sys.path.append(')
 # sys.path.append('/DataPineLine/AIModel')
@@ -17,21 +17,13 @@ from crawler import crawler_main
 from model import Model
 
 
-py_vncorenlp.download_model(save_dir='/DataPipeLine/VnCoreNLP')
+# py_vncorenlp.download_model(save_dir='/DataPipeLine/VnCoreNLP')
 
-rdrsegmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir='/DataPipeLine/VnCoreNLP')
-# def load_data(path):
-#     with open(path, 'r', encoding = 'utf-8') as f:
-#         data = f.readlines()
-        
-#     data = [json.loads(line.strip()) for line in data]
-    
-#     df = pd.DataFrame(data)
-#     return df
+
 
 def removespec(text):
     text = str(''.join(text))
-    n_text = re.sub("([\[\]'\-,])", '', text).lower()
+    n_text = re.sub("([\[\]'\-,])", '', text)
     
     return n_text
 
@@ -44,36 +36,57 @@ def tokenizer(sentence, rdrsegmenter):
     return tokenizer
    
 
-def processing():
-    # temp_data = crawler_main()
-    temp_data = crawler_main()
+# def processing(rdrsegmenter):
+   
+#     temp_data = crawler_main()
      
-    data = []
-    for domain in temp_data:
-        data.extend(domain)
+#     data = []
+#     for domain in temp_data:
+#         data.extend(domain)
         
     
-    df = pd.DataFrame(data)
+#     # df = pd.DataFrame(data)
   
     
-    df['description'] = df['description'].apply(removespec)
+#     df['description'] = df['description'].apply(removespec)
+#     df['description'] = df['paragraphs'].apply(removespec)
     
-    df['tokenized'] = df['description'].apply(lambda x : tokenizer(x, rdrsegmenter))
-    df = df.fillna('')
+#     df['tokenized'] = df['description'].apply(lambda x : tokenizer(x, rdrsegmenter))
+#     df = df.fillna('')
     
-    # print(df.iloc[0])
+#     # print(df.iloc[0])
     
-    return df
+#     return df
             
         
 
-if __name__ == "__main__":
+async def embedding():
     
+    temp_data = crawler_main()
+    data = []
+    for domain in temp_data:
+        data.extend(domain)
+    
+    rdrsegmenter = py_vncorenlp.VnCoreNLP(annotators=["wseg"], save_dir='D:/airflow_tutorial/MMIR/BE/Datapipeline/VnCoreNLP')
+    
+    for rec in data:
+        rec['paragraphs'] = removespec(rec['paragraphs'])
+        rec['description'] = removespec(rec['description'])
+        rec['tokenized'] = tokenizer(rec['description'], rdrsegmenter)
+        
+    os.chdir('../..')
     model = Model()
-    df = processing()
-    print('phobert embedding')
-    df['vector_embedding'] = df['tokenized'].apply(lambda x : model.encoding(x))
-    print(df.iloc[0])
+    for rec in tqdm(data):
+    # delete tokenized in rec before push to elastic
+    
+        rec['embedding'] = model.encoding(rec['tokenized'])
+        del rec['tokenized']
+        
+    return data
+    # df = processing(rdrsegmenter)
+    # os.chdir('..')
+   
+
     
     ### Convert data
     # data = processing()

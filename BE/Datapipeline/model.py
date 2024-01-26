@@ -26,22 +26,23 @@ class Model:
     # @staticmethod
     def encoding(self, text, maxlen = 239):
 
-        self.phobert.to(device)
+        self.phobert.to(device) # dua sang cuda 
 
         encoding = self.tokenizer.encode_plus(text,
                     truncation=True,
                     add_special_tokens=True,
                     max_length= maxlen,
                     padding='max_length',
-                    return_attention_mask=True,
+                    return_attention_mask=True, # cai list [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
                     return_token_type_ids=False,
-                    return_tensors='pt',)
+                    return_tensors='pt',) # cach tokenize 
         
+        # description co 100 ki tu => vec len(ids) = 104, pad them 0 => vec len(ids) = maxlen ( )
         input_ids = encoding.input_ids.to(device)
         attention_mask = encoding.attention_mask.to(device)
         with torch.no_grad():
-            features = self.phobert(input_ids = input_ids, attention_mask=attention_mask)
-        output = features.pooler_output.squeeze(0).to('cpu').numpy()
+            features = self.phobert(input_ids = input_ids, attention_mask=attention_mask) # output gom 2 cai hidden state va pooler output => fc truoc khi softmax 
+        output = features.pooler_output.squeeze(0).to('cpu').numpy() # squeeze(0) => bo di cai 0 dau tien => (1,768) => (768,)
         # hidden_state = features.last_hidden_state.squeeze(0).to('cpu').numpy()
         # dimension = 3
         # pca = PCA(n_components=dimension)

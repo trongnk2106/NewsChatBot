@@ -48,7 +48,8 @@ if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-        
+    
+    print(prompt)
     prefix = prompt.split(" ")[0]
     query = " ".join(prompt.split(" ")[1:])
     # print(query)

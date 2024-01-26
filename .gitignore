@@ -2,4 +2,5 @@ store_model/
 BE/models/
 BE/Datapipeline/models/
 BE/esdata_/
-airflow_docker/
+airflow_schedule/logs/
+
